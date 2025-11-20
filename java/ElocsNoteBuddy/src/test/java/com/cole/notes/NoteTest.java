@@ -22,7 +22,7 @@ public class NoteTest {                                                         
     public void testNoteRejectsEmptyTitle() {                                       // "defensive programming"
                                                                                 
         assertThrows(IllegalArgumentException.class, () -> {      // assertThrows expects 2 things: type of exception expected / arrow function that should throw that exception
-            new Note("", "Some content");                                         // () -> {} = lambda (anonymous function) that contains code that SHOULD throw that exception
+            new Note("", "Some content");                            // () -> {} = lambda (anonymous function) that contains code that SHOULD throw that exception
         });                                                                     // test creates a note with empty string as the title, test SHOULD fail and throw IllegalArgException
     }                                                                               // if it doesn't throw the exception, test fails
 
