@@ -1,0 +1,5 @@
+# Ignore user's personal notes
+noteVault/
+
+# But keep the directory structure
+!noteVault/.gitkeep
