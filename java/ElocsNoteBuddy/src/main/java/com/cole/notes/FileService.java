@@ -2,6 +2,10 @@ package com.cole.notes;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FileService {
     
@@ -45,5 +49,17 @@ public class FileService {
         output.append(note.getContent());
 
         return output.toString();
+    }
+
+    public String saveNote(Note note) throws IOException {
+
+        String filename = generateFilename(note.getTitle());
+        String formattedContent = formatNoteForFile(note);
+
+        Path filePath = Paths.get(Config.NOTES_DIRECTORY + filename);
+        Files.createDirectories(filePath.getParent());
+        Files.writeString(filePath, formattedContent);
+
+        return filename;
     }
 }
