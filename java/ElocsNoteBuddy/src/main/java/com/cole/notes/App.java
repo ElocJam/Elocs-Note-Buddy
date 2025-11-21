@@ -147,7 +147,7 @@ public class App {
             }
         }
         private static String getRandomCow() {
-            String[] cows = {"default", "dragon", "stegosaurus", "tux", "vader", "moose"};
+            String[] cows = {"default", "dragon", "stegosaurus", "tux", "vader", "moose", "camel", "beavis.zen", "turkey"};
             Random rand = new Random();
             return cows[rand.nextInt(cows.length)];
         }
