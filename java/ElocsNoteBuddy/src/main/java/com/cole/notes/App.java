@@ -85,7 +85,7 @@ public class App {
                 }
             }
 
-            FileService fileService = new FileService();
+            FileService fileService = new FileService();                    // created in the main, reused everywhere in code make sure it is instance variable of main
             String filename = fileService.saveNote(note);
 
             System.out.println("\n Note created!");
@@ -95,6 +95,11 @@ public class App {
             System.out.println("\nError creating note: " + e.getMessage());
         }
     }
+
+    // list all notes, read notes created (next steps)
+    // basics by monday
+    // how to use nano take note, create temp file, nano edit it, overwrite existing note with the temp
+    // make sure i write unit test
 }
     
 

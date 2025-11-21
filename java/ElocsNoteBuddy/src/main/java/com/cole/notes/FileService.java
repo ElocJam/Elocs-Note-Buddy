@@ -53,11 +53,11 @@ public class FileService {
 
     public String saveNote(Note note) throws IOException {                  // declares method, throws an error if it fails
 
-        String filename = generateFilename(note.getTitle());                // generating the safe filename
+        String filename = generateFilename(note.getTitle());                // generating the safe filename.       (might change name)
         String formattedContent = formatNoteForFile(note);                  // placing that in 'formattedContent'
 
         Path filePath = Paths.get(Config.NOTES_DIRECTORY + filename);       // building our path
-        Files.createDirectories(filePath.getParent());                      // making sure directory exists, makes one if not
+        Files.createDirectories(filePath.getParent());                      // making sure directory exists, makes one if not. (take a look)
         Files.writeString(filePath, formattedContent);                      // actually saving it!
 
         return filename;                                                    // give the final file name
