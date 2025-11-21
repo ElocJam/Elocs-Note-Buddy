@@ -18,7 +18,7 @@ public class ConfigTest {
     public void testFileNamesHaveCorrectExtension() {                                   // ensures filename is using the config constant
 
         String filename = "test-note" + Config.NOTE_EXTENSION;                          // creates a filename using the config constant
-        assertTrue(filename.endsWith(".md"));                                 // Verify it ends with .note extension
-        assertEquals("test-note.md", filename);                             // Verify complete filename is correct
+        assertTrue(filename.endsWith(".md"));                                   // Verify it ends with .note extension
+        assertEquals("test-note.md", filename);                               // Verify complete filename is correct
     }
 }
