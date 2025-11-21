@@ -16,6 +16,12 @@ public class Note {
             throw new IllegalArgumentException("Title cannot be empty");
         }
 
+        if (title.length() > Config.MAX_TITLE_LENGTH) {
+            throw new IllegalArgumentException(
+                "Title too long (max " + Config.MAX_TITLE_LENGTH + " characters)"
+            );
+        }
+
     this.title = title;
     this.content = content;
     this.created = LocalDateTime.now();

@@ -11,7 +11,7 @@ public class NoteTest {                                                         
     public void testNoteCreation() {                                            
                                                                                 
         Note note = new Note("My First Note", "This is the content");    // Create new note object with title and content
-                                                                                        // + calls the Note constructor with two String parameters
+                                                                                            // + calls the Note constructor with two String parameters
         assertEquals("My First Note", note.getTitle());                        // Check that title was stored correctly
         assertEquals("This is the content", note.getContent());                // Check that content was stored correctly
         assertNotNull(note.getCreated());                                       // Verify creation timestamp was set
@@ -48,9 +48,17 @@ public class NoteTest {                                                         
 
     @Test
     public void testTimestampsAreSet() {                                          // Test 5: ensures the timestamps are functional
+        
         Note note = new Note("Title", "Content");                  // creates basic note
-
         assertNotNull(note.getCreated());                                         // ensures there is a timestamp when created
         assertNotNull(note.getModified());                                        // ensures there is a timestamp when modified
+    }                                                                                   // this test is a bit limited, maybe update to test to ensure note gets timestamp when modified after initial creation
+
+    @Test public void testNoteRejectsLongTitle() {                                // Test 6: ensures ridiculously long titles dont get created
+        
+        String longTitle = "a".repeat(250);                                 // create a title that has 250 chars
+        assertThrows(IllegalArgumentException.class, () -> {         // throw an exception if title is longer than 200 chars
+            new Note(longTitle, "Content");                               // creates the note with the long title
+        });
     }
 }
