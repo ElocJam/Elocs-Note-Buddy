@@ -1,5 +1,9 @@
 package com.cole.notes;
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.Random; 
 
 
 public class App {
@@ -25,6 +29,9 @@ public class App {
                 case "0":
                     System.out.println("\nGoodbye!");
                     running = false;
+                    break;
+                case "9":
+                    tellJoke();
                     break;
                 default:
                     System.out.println("\nInvalid choice. Please try again.");
@@ -94,12 +101,62 @@ public class App {
         } catch (Exception e) {
             System.out.println("\nError creating note: " + e.getMessage());
         }
+        }
+
+        private static void tellJoke() {
+            try {
+                ProcessBuilder fortuneBuilder = new ProcessBuilder("fortune");
+                Process fortuneProcess = fortuneBuilder.start();
+
+                BufferedReader fortuneReader = new BufferedReader (
+                    new InputStreamReader(fortuneProcess.getInputStream())
+                );
+
+                StringBuilder fortune = new StringBuilder();
+                String line;
+                while ((line = fortuneReader.readLine()) != null) {
+                    fortune.append(line).append("\n");
+                }
+
+                fortuneProcess.waitFor();
+
+                ProcessBuilder cowsayBuilder = new ProcessBuilder("cowsay", "-f", getRandomCow());
+                Process cowsayProcess = cowsayBuilder.start();
+
+                OutputStream cowsayInput = cowsayProcess.getOutputStream();
+                cowsayInput.write(fortune.toString().getBytes());
+
+                cowsayInput.flush();
+                cowsayInput.close();
+
+                BufferedReader cowsayReader = new BufferedReader (
+                    new InputStreamReader(cowsayProcess.getInputStream())
+                );
+
+                System.out.println();
+                while ((line = cowsayReader.readLine()) != null) {
+                    System.out.println(line);
+                }
+                System.out.println();
+
+                cowsayProcess.waitFor();
+
+            } catch (Exception e) {
+                System.out.println("Moo! Something went wrong: " + e.getMessage());
+                System.out.println("Make sure 'fortune' and 'cowsay' are installed!");
+            }
+        }
+        private static String getRandomCow() {
+            String[] cows = {"default", "dragon", "stegosaurus", "tux", "vader", "moose"};
+            Random rand = new Random();
+            return cows[rand.nextInt(cows.length)];
+        }
     }
 
     // list all notes, read notes created (next steps)
     // basics by monday
     // how to use nano take note, create temp file, nano edit it, overwrite existing note with the temp
     // make sure i write unit test
-}
+
     
 
