@@ -11,7 +11,7 @@ public class FileServiceTest {
         FileService fileService = new FileService();
         String filename = fileService.generateFilename("My First Note");                                // generates test filename with spaces
         System.out.println("DEBUG - Generated filename: " + filename);
-        assertEquals(filename, filename.toLowerCase(), "Filename should all be lowercase");                                               // ensures characters are lowercase
+        assertEquals(filename, filename.toLowerCase(), "Filename should all be lowercase");     // ensures characters are lowercase
         assertTrue(filename.contains("my-first-note"));                                              // ensures spaces were made into dashes
         assertTrue(filename.endsWith(".md"));                                                   // ensures filename ends with .md extension
 

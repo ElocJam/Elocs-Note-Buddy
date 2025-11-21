@@ -6,14 +6,14 @@ public class App {
 
     public static void main( String[] args ) {
 
-        Scanner scanner = new Scanner(System.in);
-        boolean running = true;
+        Scanner scanner = new Scanner(System.in);                           // start the scanner
+        boolean running = true;                                             // create my running boolean
     
-        System.out.println( "Welcome to Eloc's Note Buddy!" );
+        System.out.println( "Welcome to Eloc's Note Buddy!" );           // print intro
         System.out.println("=============================");
 
-        while (running) {
-            displayMenu();
+        while (running) {                                                   // start my app loop
+            displayMenu();                                                  // call my options menu
 
             System.out.print("\nEnter your choice: ");
             String choice = scanner.nextLine().trim();
