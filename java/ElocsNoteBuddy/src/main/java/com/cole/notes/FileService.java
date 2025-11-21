@@ -30,15 +30,15 @@ public class FileService {
         
         StringBuilder output = new StringBuilder();
 
-            output.append("---\n");
+            output.append("---\n");                                                                     // creating our YAML header
             output.append("title: ").append(note.getTitle()).append("\n");
-            output.append("created: ").append(note.getCreated().toString()).append("\n");
-            output.append("modified: ").append(note.getModified().toString()).append("\n");
+            output.append("created: ").append(note.getCreated().toString()).append("\n");       
+            output.append("modified: ").append(note.getModified().toString()).append("\n");         // creating our tags, converting to ISO format
 
             if (!note.getTags().isEmpty()) {
                 output.append("tags: [");
                 for (int i = 0; i < note.getTags().size(); i++) {
-                    output.append(note.getTags().get(i));
+                    output.append(note.getTags().get(i));                                                  // if there are no tags, add them!
                     if (i < note.getTags().size() - 1) {
                         output.append(", ");
                     }
@@ -46,20 +46,20 @@ public class FileService {
                 output.append("]\n");
             }
         output.append("---\n\n");
-        output.append(note.getContent());
+        output.append(note.getContent());                                   // add content
 
         return output.toString();
     }
 
-    public String saveNote(Note note) throws IOException {
+    public String saveNote(Note note) throws IOException {                  // declares method, throws an error if it fails
 
-        String filename = generateFilename(note.getTitle());
-        String formattedContent = formatNoteForFile(note);
+        String filename = generateFilename(note.getTitle());                // generating the safe filename
+        String formattedContent = formatNoteForFile(note);                  // placing that in 'formattedContent'
 
-        Path filePath = Paths.get(Config.NOTES_DIRECTORY + filename);
-        Files.createDirectories(filePath.getParent());
-        Files.writeString(filePath, formattedContent);
+        Path filePath = Paths.get(Config.NOTES_DIRECTORY + filename);       // building our path
+        Files.createDirectories(filePath.getParent());                      // making sure directory exists, makes one if not
+        Files.writeString(filePath, formattedContent);                      // actually saving it!
 
-        return filename;
+        return filename;                                                    // give the final file name
     }
 }
