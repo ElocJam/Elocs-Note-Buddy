@@ -9,10 +9,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.ArrayList;
 import java.nio.file.DirectoryStream;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
 
 public class FileService {
     
-    public String generateFilename(String title) {                               // ************ FILENAME CREATOR
+    public String generateFilename(String title) {                               // ************ FILENAME CREATOR METHOD
         
         String sanitized = title.toLowerCase();                                                     // convert all chars in name to lowercase
         sanitized = sanitized.replaceAll("[^a-z0-9 ]", "");                      // uses regex to keep only letters, numbers, and spaces
@@ -29,7 +32,7 @@ public class FileService {
         return filename;
     }
 
-    public String formatNoteForFile(Note note) {                                  // ************ NOTE FORMATTER
+    public String formatNoteForFile(Note note) {                                  // ************ NOTE FORMATTER METHOD
         
         StringBuilder output = new StringBuilder();
 
@@ -182,6 +185,74 @@ public class FileService {
             throw new IOException("Note file not found: " + filename);
         }
         Files.delete(filePath);
+    }
+
+    public List<Note> searchNotesByKeyword(String keyword) throws IOException {         // *********** SEARCH BY KEYWORD METHOD
+        ensureNotesDirectoryExists();
+
+        List<String> allFiles = listNotes();
+        List<Note> matchingNotes = new ArrayList<>();
+        String lowerKeyword = keyword.toLowerCase();
+
+        for (String filename : allFiles) {
+            Note note = loadNote(filename);
+            if (note.getTitle().toLowerCase().contains(lowerKeyword) ||
+                note.getContent().toLowerCase().contains(lowerKeyword)) {
+                    matchingNotes.add(note);
+                }
+            }
+            return matchingNotes;
+    }
+
+    public List<Note> filterNotesByTag(String tag) throws IOException {                 // ************ FILTER NOTE BY TAG METHOD
+        ensureNotesDirectoryExists();
+
+        List<String> allFiles = listNotes();
+        List<Note> matchingNotes = new ArrayList<>();
+        String lowerTag = tag.toLowerCase();
+
+        for (String filename : allFiles) {
+            Note note = loadNote(filename);
+
+            for (String noteTag : note.getTags()) {
+                if (noteTag.toLowerCase().equals(lowerTag)) {
+                    matchingNotes.add(note);
+                    break;
+                }
+            }
+        }
+        return matchingNotes;
+    }
+
+    public List<String> getAllTags() throws IOException {                       // ************** SHOW ALL TAGS METHOD
+        ensureNotesDirectoryExists();
+
+        List<String> allFiles = listNotes();
+        Set<String> uniqueTags = new HashSet<>();
+
+        for (String filename : allFiles) {
+            Note note = loadNote(filename);
+            uniqueTags.addAll(note.getTags());
+        }
+
+        List<String> sortedTags = new ArrayList<>(uniqueTags);
+        Collections.sort(sortedTags);
+
+        return sortedTags;
+    }
+
+    public List<Note> listNotesSortedByCreated() throws IOException {           // ************** LIST NOTES BY CREATED
+        ensureNotesDirectoryExists();
+
+        List<String> allFiles = listNotes();
+        List<Note> notes = new ArrayList<>();
+
+        for (String filename : allFiles) {
+            notes.add(loadNote(filename));
+        }
+        notes.sort((n1, n2) -> n2.getCreated().compareTo(n1.getCreated()));
+
+        return notes;
     }
 }
 

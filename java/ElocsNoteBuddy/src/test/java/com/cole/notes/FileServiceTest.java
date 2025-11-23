@@ -5,8 +5,57 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
 
 public class FileServiceTest {
+
+    private static final String ORIGINAL_DIR = System.getProperty("user.home") + "/noteVault/";
+    private static final String TEST_DIR = System.getProperty("user.home") + "/noteVault-test/";
+
+    @BeforeAll
+    public static void setupTest() throws IOException {
+
+        Config.NOTES_DIRECTORY = TEST_DIR;
+
+        Path testPath = Paths.get(TEST_DIR);
+        if (Files.exists(testPath)) {
+            Files.walk(testPath)
+                .sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+
+                    }
+                });
+        }
+        System.out.println("Tests using: " + TEST_DIR);
+    }
+
+    @AfterAll
+    public static void teardownTests() throws IOException {
+
+        Path testPath = Paths.get(TEST_DIR);
+        if (Files.exists(testPath)) {
+            Files.walk(testPath)
+                .sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+
+                    }
+                });
+        }
+
+        Config.NOTES_DIRECTORY = ORIGINAL_DIR;
+        System.out.println("Tests cleaned up, restored to: " + ORIGINAL_DIR);
+    }
     
     @Test
     public void testGenerateFilenameWithSpace() {                                                       // ************Test 1: create a file name with spaces
@@ -214,5 +263,101 @@ public class FileServiceTest {
         Note loadedNote1 = fileService.loadNote(filename1);
         assertEquals("Keep This", loadedNote1.getTitle());
         System.out.println("Other notes remain intact after deletion");
+    }
+
+    @Test                                                                           // **************Test 13: make sure you can search notes by keyword
+    public void testSearchByKeyword() throws IOException {
+        FileService fileService = new FileService();
+
+        Note note1 = new Note("Java is cool", "Learn Java and be cool too");
+        Note note2 = new Note("Python is for data nerds", "Imagine caring about indents");
+        Note note3 = new Note("How many tests do i need", "My fingers hurt");
+
+        fileService.saveNote(note1);
+        fileService.saveNote(note2);
+        fileService.saveNote(note3);
+
+        List<Note> results = fileService.searchNotesByKeyword("Java");
+        assertTrue(results.size() >= 1);
+        assertTrue(results.stream().anyMatch(n -> n.getTitle().contains("Java")));
+
+        System.out.println("Search found " + results.size() + " notes containing 'Java'");
+    }
+
+    @Test                                                                           // **************Test 14: tests that we can filter notes by tags
+    public void testFilterByTag() throws IOException {
+        FileService fileService = new FileService();
+
+        Note note1 = new Note("Tagged 1", "Content");
+            note1.addTag("important");
+            note1.addTag("work");
+
+        Note note2 = new Note("Tagged 2", "Content");
+            note2.addTag("personal");
+
+        Note note3 = new Note("Tagged 3", "Content");
+            note3.addTag("important");
+
+        fileService.saveNote(note1);
+        fileService.saveNote(note2);
+        fileService.saveNote(note3);
+
+        List<Note> results = fileService.filterNotesByTag("important");
+
+        assertTrue(results.size() >=2);
+            for (Note note : results) {
+                assertTrue(note.getTags().contains("important"));
+            }
+
+        System.out.println("Filter found " + results.size() + " notes with tag 'important'");
+    }
+
+    @Test
+    public void testGetAllTags() throws IOException {                           // ****************Test 15: tests that we can get all tags
+        FileService fileService = new FileService();
+
+        Note note1 = new Note("Test 1", "Content");
+            note1.addTag("java");
+            note1.addTag("coding");
+
+        Note note2 = new Note("Test 2", "Content");
+            note2.addTag("python");
+            note2.addTag("coding");
+
+        fileService.saveNote(note1);
+        fileService.saveNote(note2);
+
+        List<String> allTags = fileService.getAllTags();
+
+        assertTrue(allTags.contains("java"));
+        assertTrue(allTags.contains("python"));
+        assertTrue(allTags.contains("coding"));
+        assertTrue(allTags.size() >= 3);
+
+        System.out.println("All unique tags: " + allTags);
+    }
+
+    @Test
+    public void testListNotesSortedByCreated() throws IOException, InterruptedException {
+        FileService fileService = new FileService();
+
+        Note note1 = new Note("First", "Content");
+        fileService.saveNote(note1);
+
+        Thread.sleep(1000);
+
+        Note note2 = new Note("Second", "Content");
+        fileService.saveNote(note2);
+
+        List<Note> sorted = fileService.listNotesSortedByCreated();
+        assertTrue(sorted.size() >= 2);
+
+        Note first = sorted.stream().filter(n -> n.getTitle().equals("First")).findFirst().orElse(null);
+        Note second = sorted.stream().filter(n -> n.getTitle().equals("Second")).findFirst().orElse(null);
+        assertNotNull(first);
+        assertNotNull(second);
+        assertTrue(second.getCreated().isAfter(first.getCreated()));
+
+        System.out.println("Notes correctly sorted by creation date");
     }
 }

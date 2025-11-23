@@ -43,6 +43,14 @@ public class App {
                 case "4":
                     deleteNote(scanner);
                     break;
+                case "5":
+                    searchNotes(scanner);
+                    break;
+                case "6":
+                    filterByTag(scanner);
+                    break;
+                case "7":
+                    listByCreated(scanner);
                 case "9":
                     tellJoke();
                     break;
@@ -59,7 +67,10 @@ public class App {
         System.out.println("Create new note               ---> Enter 1");
         System.out.println("List all notes                ---> Enter 2");
         System.out.println("Edit existsing note           ---> Enter 3");
-        System.out.println("Delete existing note.         ---> Enter 4");
+        System.out.println("Delete existing note          ---> Enter 4");
+        System.out.println("Search notes by keyword       ---> Enter 5");
+        System.out.println("Filter notes by tag           ---> Enter 6");
+        System.out.println("List notes by creation date   ---> Enter 7");
         System.out.println("Tell me a joke                ---> Enter 9");
         System.out.println("Quit                          ---> Enter 0");
 
@@ -312,6 +323,173 @@ public class App {
         }
     }
 
+    private static void searchNotes(Scanner scanner) {              // ************** SEARCH NOTE BY KEYWORD METHOD
+        System.out.println("\n=== SEARCH NOTES ===\n");
+        System.out.print("Enter seach keyword: ");
+        String keyword = scanner.nextLine().trim();
+
+        if (keyword.isEmpty()) {
+            System.out.println("Search cancelled.");
+            return;
+        }
+
+        try {
+            FileService fileService = new FileService();
+            List<Note> results = fileService.searchNotesByKeyword(keyword);
+
+            if (results.isEmpty()) {
+                System.out.println("\nNo notes found containing '" + keyword + "'");
+                return;
+            }
+
+            System.out.println("\nFound " + results.size() + " notes containing '" + keyword + "':\n");
+            for (int i = 0; i < results.size(); i++) {
+                Note note = results.get(i);
+                System.out.println((i + 1) + ". " + note.getTitle());
+                System.out.println(" Created: " + note.getCreated());
+
+                if (!note.getTags().isEmpty()) {
+                    System.out.print(" Tags: ");
+                    for (int j = 0; j < note.getTags().size(); j++) {
+                        System.out.print(note.getTags().get(j));
+                        if (j < note.getTags().size() - 1) {
+                            System.out.print(", ");
+                        }
+                    }
+                    System.out.println();
+                }
+                System.out.println();
+            }
+            System.out.print("Enter note number to read (or 0 to cancel): ");
+            String input = scanner.nextLine().trim();
+
+            if (!input.equals("0") && !input.isEmpty()) {
+                int choice = Integer.parseInt(input);
+                if (choice > 0 && choice <= results.size()) {
+                    displayNoteDetails(results.get(choice - 1), scanner);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error searching notes: " + e.getMessage());
+        }
+    }
+
+    private static void displayNoteDetails(Note note, Scanner scanner) {            // ************** DISPLAY NOTE HELPER METHOD
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println(note.getTitle());
+        System.out.println("=".repeat(50));
+        System.out.println();
+        System.out.println("Created: " + note.getCreated());
+        System.out.println("Modified: " + note.getModified());
+        
+        if (!note.getTags().isEmpty()) {
+            System.out.print("Tags: ");
+            for (int i = 0; i < note.getTags().size(); i++) {
+                System.out.print(note.getTags().get(i));
+                if (i < note.getTags().size() - 1) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.println();
+        }
+        
+        System.out.println();
+        System.out.println("-".repeat(50));
+        System.out.println(note.getContent());
+        System.out.println("-".repeat(50));
+        
+        System.out.print("\nPress Enter to continue...");
+        scanner.nextLine();
+    }
+
+    private static void filterByTag(Scanner scanner) {                              // ************* FILTER BY TAG METHOD
+        System.out.println("\n=== FILTER BY TAG ===\n");
+
+        try {
+            FileService fileService = new FileService();
+            List<String> allTags = fileService.getAllTags();
+
+            if (allTags.isEmpty()) {
+                System.out.println("No tags found in notes.");
+                return;
+            }
+
+            System.out.println("Available tags:");
+            for (String tag : allTags) {
+                System.out.println("  - " + tag);
+            }
+
+            System.out.print("\nEnter tag to filter by: ");
+            String tag = scanner.nextLine().trim();
+
+            if (tag.isEmpty()) {
+                System.out.println("Filter cancelled.");
+                return;
+            }
+
+            List<Note> results = fileService.filterNotesByTag(tag);
+            if (results.isEmpty()) {
+                System.out.println("\nNo notes found with tag '" + tag + "'");
+                return;
+            }
+
+            System.out.println("\nFound " + results.size() + " notes with tag '" + tag + "':\n"); 
+        
+            for (int i = 0; i < results.size(); i++) {
+                Note note = results.get(i);
+                System.out.println((i + 1) + ". " + note.getTitle());
+                System.out.println("  Created: " + note.getCreated());
+                System.out.println();
+            }
+
+            System.out.print("Enter note number to read (or 0 to cancel): ");
+            String input = scanner.nextLine().trim();
+
+            if (!input.equals("0") && !input.isEmpty()) {
+                int choice = Integer.parseInt(input);
+                if (choice > 0 && choice <= results.size()) {
+                    displayNoteDetails(results.get(choice - 1), scanner);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error filtering notes: " + e.getMessage());
+        }
+    }
+
+    private static void listByCreated(Scanner scanner) {                        // *************** LIST NOTES BY CREATION DATE
+        System.out.println("\n=== NOTES BY CREATION DATE ===\n");
+
+        try {
+            FileService fileService = new FileService();
+            List<Note> notes = fileService.listNotesSortedByCreated();
+
+            if (notes.isEmpty()) {
+                System.out.println("No notes found.");
+                return;
+            }
+
+            for (int i = 0; i < notes.size(); i++) {
+                Note note = notes.get(i);
+                System.out.println((i + 1) + ". " + note.getTitle());
+                System.out.println("  Created: " + note.getCreated());
+                System.out.println("  Modified: " + note.getModified());
+                System.out.println();
+            }
+
+            System.out.println(notes.size() + " notes found (sorted by creation date, newest first).");
+            System.out.print("\nEnter note number to read (or 0 to cancel): ");
+            String input = scanner.nextLine().trim();
+
+            if (!input.equals("0") && !input.isEmpty()) {
+                int choice = Integer.parseInt(input);
+                if (choice > 0 && choice <= notes.size()) {
+                    displayNoteDetails(notes.get(choice - 1), scanner);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error listing notes: " + e.getMessage());
+        }
+    }
 
     private static void tellJoke() {                                      // ******************** THE SACRED COW!!!!!!
             
