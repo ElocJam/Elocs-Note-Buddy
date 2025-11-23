@@ -196,7 +196,7 @@ public class FileServiceTest {
         });
     }
 
-    @Test
+    @Test                                                                           // *************Test 12: make sure deleting a note doesnt affect other notes
     public void testDeleteDoesNotAffectOtherNotes() throws IOException {
 
         FileService fileService = new FileService();
