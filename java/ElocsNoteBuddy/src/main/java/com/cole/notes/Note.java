@@ -29,7 +29,7 @@ public class Note {
     this.tags = new ArrayList<>();
     }
 
-    public Note(String title, String content, LocalDateTime created, LocalDateTime modified) {
+    public Note(String title, String content, LocalDateTime created, LocalDateTime modified) {      // Second constructor to maintain the original timestamps when messing with a note
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Title cannot be empty");
         }
@@ -39,6 +39,14 @@ public class Note {
         this.created = created;
         this.modified = modified;
         this.tags = new ArrayList<>();
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void updateModifiedTime() {
+        this.modified = LocalDateTime.now();
     }
 
     public String getTitle() {

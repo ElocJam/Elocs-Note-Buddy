@@ -165,5 +165,13 @@ public class FileService {
         }
         return note;
     }
+
+    public void updateNote(String filename, Note note) throws IOException {
+        ensureNotesDirectoryExists();
+
+        Path filePath = Paths.get(Config.NOTES_DIRECTORY + filename);
+        String formattedContent = formatNoteForFile(note);
+        Files.writeString(filePath, formattedContent);
+    }
 }
 

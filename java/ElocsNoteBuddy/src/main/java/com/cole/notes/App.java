@@ -5,6 +5,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Random; 
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 
 
 public class App {
@@ -34,6 +37,9 @@ public class App {
                 case "2":
                     displayNotes(scanner);
                     break;
+                case "3":
+                    editNote(scanner);
+                    break;
                 case "9":
                     tellJoke();
                     break;
@@ -49,12 +55,13 @@ public class App {
         System.out.println("What would you like to do?");
         System.out.println("Create new note               ---> Enter 1");
         System.out.println("List all notes                ---> Enter 2");
+        System.out.println("Edit existsing note           ---> Enter 3");
         System.out.println("Tell me a joke                ---> Enter 9");
         System.out.println("Quit                          ---> Enter 0");
 
     }
-                                                                        // ************************* CREATE NOTE
-    private static void createNewNote(Scanner scanner) {
+                                                                        
+    private static void createNewNote(Scanner scanner) {            // ************************* CREATE NOTE
         System.out.println("\n=== CREATE NEW NOTE ===");
 
         System.out.println("Enter note title: ");
@@ -101,8 +108,8 @@ public class App {
         }
     }                                                                       
 
-        private static void displayNotes(Scanner scanner) {                     // ************************* LIST ALL NOTES
-            System.out.println("\n=== MY NOTES ===\n");                      // ******************* ALSO READ NOTES
+    private static void displayNotes(Scanner scanner) {                     // ************************* LIST ALL NOTES
+            System.out.println("\n=== MY NOTES ===\n");                      
 
             try {
                 FileService fileService = new FileService();
@@ -142,7 +149,7 @@ public class App {
             }
         }
 
-        private static void readNote(FileService fileService, String filename, Scanner scanner) {
+    private static void readNote(FileService fileService, String filename, Scanner scanner) {           // ************** READ NOTES
             try {
                 Note note = fileService.loadNote(filename);
 
@@ -175,8 +182,86 @@ public class App {
             }
         }
 
+    private static void editNote(Scanner scanner) {                             // *************** EDIT NOTES
+            System.out.println("\n=== EDIT NOTE ===\n");
 
-        private static void tellJoke() {                                            // ******************** THE SACRED COW!!!!!!
+            try {
+                FileService fileService = new FileService();
+                List<String> notes = fileService.listNotes();
+
+                if (notes.isEmpty()) {
+                    System.out.println("No notes found, create one first!");
+                    return;
+                }
+
+                for (int i = 0; i < notes.size(); i++) {
+                    System.out.println((i + 1) + ". " + notes.get(i));
+                }
+
+                System.out.print("\nEnter note number to edit (or 0 to cancel): ");
+                String input = scanner.nextLine().trim();
+
+                if (input.equals("0") || input.isEmpty()) {
+                    return;
+                }
+
+                int choice = Integer.parseInt(input);
+                if (choice < 1 || choice > notes.size()) {
+                    System.out.println("Invalid note number!");
+                    return;
+                }
+
+                String filename = notes.get(choice - 1);
+                Note note = fileService.loadNote(filename);
+                System.out.println("\nOpening '" + note.getTitle() + "' in nano. . .");
+                System.out.println("Edit the content, then press Ctrl+X to save and exit.");
+                System.out.print("Press Enter to continue. . .");
+                scanner.nextLine();
+
+                String newContent = editInNano(note.getContent());
+                if (newContent == null) {
+                    System.out.println("Edit cancelled or failed.");
+                    return;
+                }
+
+                note.setContent(newContent);
+                note.updateModifiedTime();
+                fileService.updateNote(filename, note);
+                System.out.println("\nNote updated successfully!");
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number!");
+            } catch (Exception e) {
+                System.out.println("Error editing note: " + e.getMessage());
+            }
+        }
+
+    private static String editInNano(String content) {                     // ****************** NANO EDITOR
+            try {
+                Path tempFile = Files.createTempFile("note-edit-", ".md");
+                Files.writeString(tempFile, content);
+
+                ProcessBuilder pb = new ProcessBuilder("nano", tempFile.toString());
+                pb.inheritIO();
+                Process process = pb.start();
+                int exitCode = process.waitFor();
+
+                if (exitCode != 0) {
+                    System.out.println("Nano exited with error code: " + exitCode);
+                    Files.deleteIfExists(tempFile);
+                    return null;
+                }
+
+                String editedContent = Files.readString(tempFile);
+                Files.deleteIfExists(tempFile);
+                return editedContent;
+            } catch (Exception e) {
+                System.out.println("Error opening nano: " + e.getMessage());
+                return null;
+            }
+        }
+
+
+    private static void tellJoke() {                                            // ******************** THE SACRED COW!!!!!!
             try {
                 ProcessBuilder fortuneBuilder = new ProcessBuilder("fortune");
                 Process fortuneProcess = fortuneBuilder.start();
@@ -220,7 +305,7 @@ public class App {
             }
         }
 
-        private static String getRandomCow() {                             // ******************* COW RANDOMIZER
+    private static String getRandomCow() {                             // ******************* COW RANDOMIZER
             String[] cows = {"default", "dragon", "stegosaurus", "tux", "vader", "moose", "camel", "beavis.zen", "turkey", "turtle", "llama"};
             Random rand = new Random();
             return cows[rand.nextInt(cows.length)];
