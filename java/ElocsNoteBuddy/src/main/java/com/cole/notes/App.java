@@ -59,6 +59,7 @@ public class App {
         System.out.println("Create new note               ---> Enter 1");
         System.out.println("List all notes                ---> Enter 2");
         System.out.println("Edit existsing note           ---> Enter 3");
+        System.out.println("Delete existing note.         ---> Enter 4");
         System.out.println("Tell me a joke                ---> Enter 9");
         System.out.println("Quit                          ---> Enter 0");
 
