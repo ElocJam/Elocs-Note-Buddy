@@ -20,8 +20,8 @@ public class App {
         System.out.println( "Welcome to Eloc's Note Buddy!" );           // print intro
         System.out.println("=============================");
 
-        while (running) {                                                   // start my app loop
-            displayMenu();                                                  // call my options menu
+        while (running) {                                        // start my app loop
+            displayMenu();                                       // *************** MENU OPTIONS
 
             System.out.print("\nEnter your choice: ");
             String choice = scanner.nextLine().trim();
@@ -39,6 +39,9 @@ public class App {
                     break;
                 case "3":
                     editNote(scanner);
+                    break;
+                case "4":
+                    deleteNote(scanner);
                     break;
                 case "9":
                     tellJoke();
@@ -260,8 +263,57 @@ public class App {
             }
         }
 
+    private static void deleteNote(Scanner scanner) {                   // ************* DELETE NOTE
+        System.out.println("\n=== DELETE NOTE ===\n");
 
-    private static void tellJoke() {                                            // ******************** THE SACRED COW!!!!!!
+        try {
+            FileService fileService = new FileService();
+            List<String> notes = fileService.listNotes();
+
+            if (notes.isEmpty()) {
+                System.out.println("No notes found.");
+                return;
+            }
+
+            for (int i = 0; i < notes.size(); i++) {
+                System.out.println((i + 1) + ". " + notes.get(i));
+            }
+
+            System.out.print("\nEnter note number to delete (or 0 to cancel): ");
+            String input = scanner.nextLine().trim();
+
+            if (input.equals("0") || input.isEmpty()) {
+                return;
+            }
+
+            int choice = Integer.parseInt(input);
+            if (choice < 1 || choice > notes.size()) {
+                System.out.println("Invalid note number!");
+                return;
+            }
+
+            String filename = notes.get(choice - 1);
+            Note note = fileService.loadNote(filename);
+            System.out.print("\nAre you sure you want to delete '" + note.getTitle() + "'? (yes/no): ");
+            String confirm = scanner.nextLine().trim().toLowerCase();
+
+            if (confirm.equals("yes")) {
+                fileService.deleteNote(filename);
+                System.out.println("Note deleted successfully!");
+            } else {
+                System.out.println("\nDeletion cancelled.");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a valid number!");
+        } catch (Exception e) {
+            System.out.println("Error deleting note: " + e.getMessage());
+        }
+    }
+
+
+    private static void tellJoke() {                                      // ******************** THE SACRED COW!!!!!!
+            
             try {
                 ProcessBuilder fortuneBuilder = new ProcessBuilder("fortune");
                 Process fortuneProcess = fortuneBuilder.start();

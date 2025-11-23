@@ -166,12 +166,22 @@ public class FileService {
         return note;
     }
 
-    public void updateNote(String filename, Note note) throws IOException {
+    public void updateNote(String filename, Note note) throws IOException {             // ************ UPDATE NOTE METHOD
         ensureNotesDirectoryExists();
 
         Path filePath = Paths.get(Config.NOTES_DIRECTORY + filename);
         String formattedContent = formatNoteForFile(note);
         Files.writeString(filePath, formattedContent);
+    }
+
+    public void deleteNote(String filename) throws IOException {                        // *************** DELETE NOTE METHOD
+        ensureNotesDirectoryExists();
+
+        Path filePath = Paths.get(Config.NOTES_DIRECTORY + filename);
+        if (!Files.exists(filePath)) {
+            throw new IOException("Note file not found: " + filename);
+        }
+        Files.delete(filePath);
     }
 }
 

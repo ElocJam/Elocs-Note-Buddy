@@ -169,4 +169,50 @@ public class FileServiceTest {
         assertTrue(createdDiff < 2, "Creation timestamp should be preserved when loading");
         System.out.println("Timestamp preservation test passed!");
     }
+
+    @Test                                                                               // **************Test 10: make sure note can be deleted
+    public void testDeleteNote() throws IOException {
+
+        FileService fileService = new FileService();
+        Note testNote = new Note("Note to Delete", "This will be deleted");
+        String filename = fileService.saveNote(testNote);
+
+        List<String> notesBefore = fileService.listNotes();
+        assertTrue(notesBefore.contains(filename));
+        fileService.deleteNote(filename);
+
+        List<String> notesAfter = fileService.listNotes();
+        assertFalse(notesAfter.contains(filename));
+        System.out.println("Note successfuly deleted: " + filename);
+    }
+
+    @Test                                                                           // *************Test 11: make sure deleting a non existent note throws error
+    public void testDeleteNonExistentNote() {
+
+        FileService fileService = new FileService();
+
+        assertThrows(IOException.class, () -> {
+            fileService.deleteNote("this-does-not-exist.md");
+        });
+    }
+
+    @Test
+    public void testDeleteDoesNotAffectOtherNotes() throws IOException {
+
+        FileService fileService = new FileService();
+        Note note1 = new Note("Keep This", "Content 1");
+        Note note2 = new Note("Delete This", "Content 2");
+        String filename1 = fileService.saveNote(note1);
+        String filename2 = fileService.saveNote(note2);
+
+        fileService.deleteNote(filename2);
+
+        List<String> notes = fileService.listNotes();
+        assertTrue(notes.contains(filename1));
+        assertFalse(notes.contains(filename2));
+
+        Note loadedNote1 = fileService.loadNote(filename1);
+        assertEquals("Keep This", loadedNote1.getTitle());
+        System.out.println("Other notes remain intact after deletion");
+    }
 }
