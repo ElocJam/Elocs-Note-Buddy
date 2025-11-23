@@ -4,11 +4,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 public class FileServiceTest {
     
     @Test
-    public void testGenerateFilenameWithSpace() {                                                       // Test 1: create a file name with spaces
+    public void testGenerateFilenameWithSpace() {                                                       // ************Test 1: create a file name with spaces
                                                                                                             // will be used to check if we convert those spaces to "-", that our chars are all lowercase and that it ends with the .md extension
         FileService fileService = new FileService();
         String filename = fileService.generateFilename("My First Note");                          // generates test filename with spaces
@@ -25,7 +26,7 @@ public class FileServiceTest {
 
     // keep testing!!!!!
 
-    @Test                                                                                   // Test 2: create a note with some data
+    @Test                                                                                   // **********Test 2: create a note with some data
     public void testFormateNoteForFile() {
 
         Note note = new Note("Test Note", "This is test content");          // create note with title and content
@@ -49,7 +50,7 @@ public class FileServiceTest {
     }
 
     @Test
-    public void testListNotesReturnsEmpty() throws IOException {                        // Test 3: tests listing if directory is empty 
+    public void testListNotesReturnsEmpty() throws IOException {                        // ************Test 3: tests listing if directory is empty 
 
         FileService fileService = new FileService();
         List<String> notes = fileService.listNotes();
@@ -58,7 +59,7 @@ public class FileServiceTest {
     }
 
     @Test
-    public void testListNotesAfterCreating() throws IOException {                       // Test 4: creates a note and verifies that it can be found in the list
+    public void testListNotesAfterCreating() throws IOException {                       // ***********Test 4: creates a note and verifies that it can be found in the list
 
         FileService fileService = new FileService();
         Note testNote = new Note("Test List Note", "This is for testing listing");
@@ -71,7 +72,7 @@ public class FileServiceTest {
     }
 
     @Test
-    public void testListNotesIsSorted() throws IOException {                        // Test 5: verifies that notes are sorted by date modified
+    public void testListNotesIsSorted() throws IOException {                        // ***********Test 5: verifies that notes are sorted by date modified
 
         FileService fileService = new FileService();                    
         Note note1 = new Note("First Note", "Content 1");           // creates first test note
@@ -91,5 +92,81 @@ public class FileServiceTest {
     int pos2 = notes.indexOf(file2);
 
     assertTrue(pos2 < pos1, "Newer note should appear first in list");      // compares the two note times, newest should be first
+    }
+
+    @Test
+    public void testSaveAndLoadNote() throws IOException {                          // **********Test 6: verifies saving and loading notes with in tact data
+        FileService fileService = new FileService();
+        Note originalNote = new Note("Load Test Note", "This is test content for loading");
+        originalNote.addTag("test");
+        originalNote.addTag("loading");
+
+        String filename = fileService.saveNote(originalNote);
+        Note loadedNote = fileService.loadNote(filename);
+
+        assertEquals(originalNote.getTitle(), loadedNote.getTitle());
+        assertEquals(originalNote.getContent(), loadedNote.getContent());
+        assertEquals(2, loadedNote.getTags().size());
+        assertTrue(loadedNote.getTags().contains("test"));
+        assertTrue(loadedNote.getTags().contains("loading"));
+
+        System.out.println("Successfully loaded note: " + loadedNote.getTitle());
+    }
+
+    @Test                                                                           // **********Test 7: test that loading a non existant note throws error
+    public void testLoadNonExistentNote() {
+        FileService fileService = new FileService();
+
+        assertThrows(IOException.class, () -> {
+            fileService.loadNote("this-file-does-not-exist.md");
+        });
+    }
+
+    @Test                                                                           // ************Test 8: make sure updating a note changed content and modified time
+    public void testUpdateNote() throws IOException, InterruptedException {
+        FileService fileService = new FileService();
+
+        Note originalNote = new Note("Update Test", "Original content");
+        String filename = fileService.saveNote(originalNote);
+
+        Note loadedNote = fileService.loadNote(filename);
+        String originalContent = loadedNote.getContent();
+        LocalDateTime originalModified = loadedNote.getModified();
+
+        Thread.sleep(1000);
+
+        loadedNote.setContent("Updated content - this is new!");
+        loadedNote.updateModifiedTime();
+        fileService.updateNote(filename, loadedNote);
+
+        Note updatedNote = fileService.loadNote(filename);
+
+        assertNotEquals(originalContent, updatedNote.getContent());
+        assertEquals("Updated content - this is new!", updatedNote.getContent());
+        assertTrue(updatedNote.getModified().isAfter(originalModified), "Modified time should be newer after update");
+        assertEquals(loadedNote.getCreated(), updatedNote.getCreated());
+
+        System.out.println("update test passed!");
+        System.out.println("Original modified: " + originalModified);
+        System.out.println("New modified: " + updatedNote.getModified());
+    }
+
+    @Test                                                                               // ***********Test 9: ensures we kept the original timestamp
+    public void testLoadPreservesTimestamps() throws IOException, InterruptedException {
+        FileService fileService = new FileService();
+
+        Note originalNote = new Note("Timestamp Test", "Content");
+        LocalDateTime originalCreated = originalNote.getCreated();
+        String filename = fileService.saveNote(originalNote);
+        Thread.sleep(1000);
+
+        Note loadedNote = fileService.loadNote(filename);
+
+        long createdDiff = Math.abs(
+            originalCreated.toLocalTime().toSecondOfDay() - loadedNote.getCreated().toLocalTime().toSecondOfDay()
+        );
+
+        assertTrue(createdDiff < 2, "Creation timestamp should be preserved when loading");
+        System.out.println("Timestamp preservation test passed!");
     }
 }
