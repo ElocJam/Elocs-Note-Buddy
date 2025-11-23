@@ -29,6 +29,18 @@ public class Note {
     this.tags = new ArrayList<>();
     }
 
+    public Note(String title, String content, LocalDateTime created, LocalDateTime modified) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+
+        this.title = title;
+        this.content = content;
+        this.created = created;
+        this.modified = modified;
+        this.tags = new ArrayList<>();
+    }
+
     public String getTitle() {
         return title;
     }

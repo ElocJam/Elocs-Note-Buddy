@@ -103,4 +103,67 @@ public class FileService {
         });
         return noteFiles;
     }
+
+    public Note loadNote(String filename) throws IOException {               // ****************** LOAD EXISTING NOTE METHOD
+        ensureNotesDirectoryExists();
+
+        Path filePath = Paths.get(Config.NOTES_DIRECTORY + filename);
+        if (!Files.exists(filePath)) {
+            throw new IOException("Note file not found: " + filename);
+        }
+        String content = Files.readString(filePath);
+
+        return parseNoteFromString(content);
+        }
+
+    private Note parseNoteFromString(String content) throws IOException {       // **************** PARSE NOTE FROM STRING METHOD
+        if (!content.startsWith("---")) {
+            throw new IOException("Invalid note format: missing YAML header");
+        }
+
+        String[] parts = content.split("---", 3);
+
+        if (parts.length < 3) {
+            throw new IOException("invalid note format: incomplete YAML header");
+        }
+        String yamlContent = parts[1].trim();
+        String noteContent = parts[2].trim();
+
+        String title = "";
+        String created = "";                            
+        String modified = "";                         
+        List<String> tags = new ArrayList<>();
+
+        for (String line : yamlContent.split("\n")) {
+            line = line.trim();
+
+            if (line.startsWith("title:")) {
+                title = line.substring(6).trim();
+            } else if (line.startsWith("created:")) {
+                created = line.substring(8).trim();
+            } else if (line.startsWith("modified:")) {
+                modified = line.substring(9).trim();
+            } else if (line.startsWith("tags:")) {
+                
+                String tagStr = line.substring(5).trim();
+                if (tagStr.startsWith("[") && tagStr.endsWith("]")) {
+                    tagStr = tagStr.substring(1, tagStr.length() -1);
+                    for (String tag : tagStr.split(",")) {
+                        tags.add(tag.trim());
+                    }
+                }
+            }
+        }
+
+        LocalDateTime createdTime = LocalDateTime.parse(created);
+        LocalDateTime modifiedTime = LocalDateTime.parse(modified);
+
+        Note note = new Note(title, noteContent, createdTime, modifiedTime);
+
+        for (String tag : tags) {
+            note.addTag(tag);
+        }
+        return note;
+    }
 }
+

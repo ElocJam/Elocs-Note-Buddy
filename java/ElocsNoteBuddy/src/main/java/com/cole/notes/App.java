@@ -9,7 +9,7 @@ import java.util.List;
 
 public class App {
 
-    public static void main( String[] args ) {
+    public static void main( String[] args ) {                 // **************** NOTE BUDDY'S BEATING HEART
 
         Scanner scanner = new Scanner(System.in);                           // start the scanner
         boolean running = true;                                             // create my running boolean
@@ -45,7 +45,7 @@ public class App {
         scanner.close();
     }
 
-    private static void displayMenu() {
+    private static void displayMenu() {                                // ******************** THE MENU
         System.out.println("What would you like to do?");
         System.out.println("Create new note               ---> Enter 1");
         System.out.println("List all notes                ---> Enter 2");
@@ -102,7 +102,7 @@ public class App {
     }                                                                       
 
         private static void displayNotes(Scanner scanner) {                     // ************************* LIST ALL NOTES
-            System.out.println("\n=== MY NOTES ===\n");
+            System.out.println("\n=== MY NOTES ===\n");                      // ******************* ALSO READ NOTES
 
             try {
                 FileService fileService = new FileService();
@@ -117,8 +117,61 @@ public class App {
                 }
 
                 System.out.println("\n" + notes.size() + " notes found.");
+                System.out.print("\nEnter note number to read (or 0 to cancel): ");
+                String input = scanner.nextLine().trim();
+
+                if (input.equals("0") || input.isEmpty()) {
+                    return;
+                }
+
+                try {
+                    int choice = Integer.parseInt(input);
+
+                    if (choice < 1 || choice > notes.size()) {
+                        System.out.println("Invalid note number!");
+                        return;
+                    }
+                    String filename = notes.get(choice - 1);
+                    readNote(fileService, filename, scanner);
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter a valid number!");
+                }
             } catch (Exception e) {
                 System.out.println("Error listing notes: " + e.getMessage());
+            }
+        }
+
+        private static void readNote(FileService fileService, String filename, Scanner scanner) {
+            try {
+                Note note = fileService.loadNote(filename);
+
+                System.out.println("\n" + "=".repeat(50));
+                System.out.println(note.getTitle());
+                System.out.println("=".repeat(50));
+                System.out.println();
+                System.out.println("Created: " + note.getCreated());
+                System.out.println("Modified: " + note.getModified());
+
+                if (!note.getTags().isEmpty()) {
+                    System.out.print("Tags: ");
+                    for (int i = 0; i < note.getTags().size(); i++) {
+                        System.out.print(note.getTags().get(i));
+                        if (i < note.getTags().size() - 1) {
+                            System.out.print(", ");
+                        }
+                    }
+                    System.out.println();
+                }
+                System.out.println();
+                System.out.println("-".repeat(50));
+                System.out.println(note.getContent());
+                System.out.println("-".repeat(50));
+
+                System.out.print("\nPress Enter to continue. . . ");
+                scanner.nextLine();
+            } catch (Exception e) {
+                System.out.println("Error reading note: " + e.getMessage());
             }
         }
 
@@ -166,7 +219,8 @@ public class App {
                 System.out.println("Make sure 'fortune' and 'cowsay' are installed!");
             }
         }
-        private static String getRandomCow() {
+
+        private static String getRandomCow() {                             // ******************* COW RANDOMIZER
             String[] cows = {"default", "dragon", "stegosaurus", "tux", "vader", "moose", "camel", "beavis.zen", "turkey", "turtle", "llama"};
             Random rand = new Random();
             return cows[rand.nextInt(cows.length)];
