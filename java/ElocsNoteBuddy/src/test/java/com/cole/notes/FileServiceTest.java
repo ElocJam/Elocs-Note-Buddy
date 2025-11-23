@@ -2,6 +2,8 @@ package com.cole.notes;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+import java.io.IOException;
 
 public class FileServiceTest {
     
@@ -9,7 +11,7 @@ public class FileServiceTest {
     public void testGenerateFilenameWithSpace() {                                                       // Test 1: create a file name with spaces
                                                                                                             // will be used to check if we convert those spaces to "-", that our chars are all lowercase and that it ends with the .md extension
         FileService fileService = new FileService();
-        String filename = fileService.generateFilename("My First Note");                                // generates test filename with spaces
+        String filename = fileService.generateFilename("My First Note");                          // generates test filename with spaces
         System.out.println("DEBUG - Generated filename: " + filename);
         assertEquals(filename, filename.toLowerCase(), "Filename should all be lowercase");     // ensures characters are lowercase
         assertTrue(filename.contains("my-first-note"));                                              // ensures spaces were made into dashes
@@ -44,5 +46,50 @@ public class FileServiceTest {
         System.out.println("\n === FORMATTED NOTE ===");
         System.out.println(formatted);
         System.out.println("=== END ===\n");
+    }
+
+    @Test
+    public void testListNotesReturnsEmpty() throws IOException {                        // Test 3: tests listing if directory is empty 
+
+        FileService fileService = new FileService();
+        List<String> notes = fileService.listNotes();
+        assertNotNull(notes);
+        System.out.println("Found " + notes.size() + " notes");
+    }
+
+    @Test
+    public void testListNotesAfterCreating() throws IOException {                       // Test 4: creates a note and verifies that it can be found in the list
+
+        FileService fileService = new FileService();
+        Note testNote = new Note("Test List Note", "This is for testing listing");
+        String savedFilename = fileService.saveNote(testNote);
+
+        List<String> notes = fileService.listNotes();
+        assertTrue(notes.contains(savedFilename));
+        assertTrue(notes.size() > 0);
+        System.out.println("List contains: " + notes);
+    }
+
+    @Test
+    public void testListNotesIsSorted() throws IOException {                        // Test 5: verifies that notes are sorted by date modified
+
+        FileService fileService = new FileService();                    
+        Note note1 = new Note("First Note", "Content 1");           // creates first test note
+        String file1 = fileService.saveNote(note1);
+
+        try {
+            Thread.sleep(1000);                                             // does a 1 second delay to ensure the timestamps are different
+        } catch (InterruptedException e) {
+    }
+
+    Note note2 = new Note("Second Note", "Content 2");              // creates second test note
+    String file2 = fileService.saveNote(note2);
+
+    List<String> notes = fileService.listNotes();
+
+    int pos1 = notes.indexOf(file1);
+    int pos2 = notes.indexOf(file2);
+
+    assertTrue(pos2 < pos1, "Newer note should appear first in list");      // compares the two note times, newest should be first
     }
 }

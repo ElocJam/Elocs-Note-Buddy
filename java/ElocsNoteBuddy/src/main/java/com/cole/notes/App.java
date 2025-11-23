@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Random; 
+import java.util.List;
 
 
 public class App {
@@ -30,6 +31,9 @@ public class App {
                     System.out.println("\nGoodbye!");
                     running = false;
                     break;
+                case "2":
+                    displayNotes(scanner);
+                    break;
                 case "9":
                     tellJoke();
                     break;
@@ -44,18 +48,12 @@ public class App {
     private static void displayMenu() {
         System.out.println("What would you like to do?");
         System.out.println("Create new note               ---> Enter 1");
-        System.out.println("Read existing note            ---> Enter 2");
-        System.out.println("Update existing note          ---> Enter 3");
-        System.out.println("Delete existing note          ---> Enter 4");
-        System.out.println("Search notes by tag           ---> Enter 5");
-        System.out.println("Search notes by time created  ---> Enter 6");
-        System.out.println("Search notes by date modified ---> Enter 7");
-        System.out.println("Add tag to existing note      ---> Enter 8");
+        System.out.println("List all notes                ---> Enter 2");
         System.out.println("Tell me a joke                ---> Enter 9");
         System.out.println("Quit                          ---> Enter 0");
 
     }
-
+                                                                        // ************************* CREATE NOTE
     private static void createNewNote(Scanner scanner) {
         System.out.println("\n=== CREATE NEW NOTE ===");
 
@@ -101,9 +99,31 @@ public class App {
         } catch (Exception e) {
             System.out.println("\nError creating note: " + e.getMessage());
         }
+    }                                                                       
+
+        private static void displayNotes(Scanner scanner) {                     // ************************* LIST ALL NOTES
+            System.out.println("\n=== MY NOTES ===\n");
+
+            try {
+                FileService fileService = new FileService();
+                List<String> notes = fileService.listNotes();
+
+                if (notes.isEmpty()) {
+                    System.out.println("No notes found. Create one first!");
+                    return;
+                }
+                for (int i = 0; i < notes.size(); i++) {
+                    System.out.println((i + 1) + ". " + notes.get(i));
+                }
+
+                System.out.println("\n" + notes.size() + " notes found.");
+            } catch (Exception e) {
+                System.out.println("Error listing notes: " + e.getMessage());
+            }
         }
 
-        private static void tellJoke() {
+
+        private static void tellJoke() {                                            // ******************** THE SACRED COW!!!!!!
             try {
                 ProcessBuilder fortuneBuilder = new ProcessBuilder("fortune");
                 Process fortuneProcess = fortuneBuilder.start();
