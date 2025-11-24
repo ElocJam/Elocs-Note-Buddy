@@ -15,11 +15,19 @@ public class App {
 
     public static void main( String[] args ) {                 // **************** NOTE BUDDY'S BEATING HEART
 
+    String PURPLE = "\u001B[35m";
+    System.out.print(PURPLE);
+
         Scanner scanner = new Scanner(System.in);                           // start the scanner
         boolean running = true;                                             // create my running boolean
     
-        System.out.println( "Welcome to Eloc's Note Buddy!" );           // print intro
-        System.out.println("=============================");
+        System.out.println();
+        System.out.println("░        ░░  ░░░░░░░░░      ░░░░      ░░░░      ░░░░░░░░░   ░░░  ░░░      ░░░        ░░        ░░░░░░░░       ░░░  ░░░░  ░░       ░░░       ░░░  ░░░░  ░");
+        System.out.println("▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒    ▒▒  ▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒▒  ▒▒  ▒▒");
+        System.out.println("▓      ▓▓▓▓  ▓▓▓▓▓▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓▓▓▓▓▓      ▓▓▓▓▓▓▓▓▓  ▓  ▓  ▓▓  ▓▓▓▓  ▓▓▓▓▓  ▓▓▓▓▓      ▓▓▓▓▓▓▓▓▓▓       ▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓▓▓    ▓▓▓");
+        System.out.println("█  ████████  ████████  ████  ██  ████  ████████  ████████  ██    ██  ████  █████  █████  ██████████████  ████  ██  ████  ██  ████  ██  ████  █████  ████");
+        System.out.println("█        ██        ███      ████      ████      █████████  ███   ███      ██████  █████        ████████       ████      ███       ███       ██████  ████");
+        System.out.println();                                                                                                                                    
 
         while (running) {                                        // start my app loop
             displayMenu();                                       // *************** MENU OPTIONS
@@ -32,7 +40,13 @@ public class App {
                     createNewNote(scanner);
                     break;
                 case "0":
-                    System.out.println("\nGoodbye!");
+                    System.out.println();
+                    System.out.println("░  ░░░░  ░░        ░░░      ░░░░      ░░░  ░░░░  ░░        ░░        ░░        ░░░░░░░░  ░░░░  ░░░      ░░░   ░░░  ░░░      ░░░░      ░░░        ░░       ░░");
+                    System.out.println("▒   ▒▒   ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒▒▒  ▒▒    ▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒");
+                    System.out.println("▓        ▓▓▓▓▓  ▓▓▓▓▓▓      ▓▓▓  ▓▓▓▓▓▓▓▓        ▓▓▓▓▓  ▓▓▓▓▓      ▓▓▓▓      ▓▓▓▓▓▓▓▓▓▓        ▓▓  ▓▓▓▓  ▓▓  ▓  ▓  ▓▓  ▓▓▓▓  ▓▓  ▓▓▓   ▓▓      ▓▓▓▓  ▓▓▓▓  ▓");
+                    System.out.println("█  █  █  █████  ███████████  ██  ████  ██  ████  █████  █████  ████████  ██████████████  █  █  ██        ██  ██    ██        ██  ████  ██  ████████  ████  █");
+                    System.out.println("█  ████  ██        ███      ████      ███  ████  ██        ██        ██  ██████████████  ████  ██  ████  ██  ███   ██  ████  ███      ███        ██       ██");
+                    System.out.println();
                     running = false;
                     break;
                 case "2":
@@ -70,7 +84,13 @@ public class App {
     }
 
     private static void displayMenu() {                                // ******************** THE MENU
-        System.out.println("What would you like to do?");
+
+        String BOLD = "\u001B[1m";
+        String UNBOLD = "\u001B[22m";
+
+        System.out.println("╔═══════════════════════════════════════╗");
+        System.out.println("║     " + BOLD + "WHAT WOULD YOU LIKE TO DO?" + UNBOLD + "        ║");
+        System.out.println("╚═══════════════════════════════════════╝");
         System.out.println("Create new note               ---> Enter 1");
         System.out.println("List all notes                ---> Enter 2");
         System.out.println("Edit existing note            ---> Enter 3");
@@ -594,11 +614,3 @@ public class App {
             return cows[rand.nextInt(cows.length)];
         }
     }
-
-    // list all notes, read notes created (next steps)
-    // basics by monday
-    // how to use nano take note, create temp file, nano edit it, overwrite existing note with the temp
-    // make sure i write unit test
-
-    
-
