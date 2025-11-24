@@ -575,11 +575,8 @@ public class App {
                                                             // Save cursor position
         System.out.print("\u001B[s");                   // Save
         System.out.print("\u001B[1A");                   // Move up one line
-        System.out.print("\u001B[2K");                  // Clear the line
-
-                                                            // Print status message
+        System.out.print("\u001B[2K");                  // Clear the line                                      
         System.out.println(msg);
-
                                                             // Restore cursor to saved position
         System.out.print("\u001B[u");                   // Restore
         System.out.print("Enter your choice: ");        // Reprint the input prompt so the cursor is always at the input line
@@ -714,3 +711,5 @@ public class App {
             return cows[rand.nextInt(cows.length)];
         }
     }
+
+    // i finally did it. i am a coder
