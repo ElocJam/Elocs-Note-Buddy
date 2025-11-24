@@ -17,7 +17,7 @@ public class FileServiceTest {
     private static final String ORIGINAL_DIR = System.getProperty("user.home") + "/noteVault/";
     private static final String TEST_DIR = System.getProperty("user.home") + "/noteVault-test/";
 
-    @BeforeAll
+    @BeforeAll                                                          // ************ SWITCHES FROM MY MAIN NOTEVAULT TO A TEST DIRECTORY
     public static void setupTest() throws IOException {
 
         Config.NOTES_DIRECTORY = TEST_DIR;
@@ -37,7 +37,7 @@ public class FileServiceTest {
         System.out.println("Tests using: " + TEST_DIR);
     }
 
-    @AfterAll
+    @AfterAll                                                           // ************* SWITCHES BACK TO THE MAIN NOTEVAULT FROM THE TEST DIRECTORY: DELETES TEST DIRECTORY
     public static void teardownTests() throws IOException {
 
         Path testPath = Paths.get(TEST_DIR);
@@ -337,7 +337,7 @@ public class FileServiceTest {
         System.out.println("All unique tags: " + allTags);
     }
 
-    @Test
+    @Test                                                                           // ***************Test 16: tests that lists are sorted by created
     public void testListNotesSortedByCreated() throws IOException, InterruptedException {
         FileService fileService = new FileService();
 
