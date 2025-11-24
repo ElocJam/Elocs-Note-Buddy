@@ -569,14 +569,27 @@ public class App {
             }
     }
 
-    private static void playMusic(Scanner scanner) {                            // *************** THE JUKEBOX METHOD
+    public static void printStatus(String msg) {                          // ****************** JUKEBOX CURSOR FIX
+        System.out.print("\u001B[s");      // save cursor position
+        System.out.print("\u001B[1A");    // move cursor UP 1 line
+        System.out.print("\u001B[2K");    // clear the entire line
+        System.out.print(msg + "\n");        // print status
+        System.out.print("\u001B[u");     // restore cursor position
+    }
+    
+    private static Thread musicThread = null;                                   // **************** JUKEBOX METHOD
+    private static boolean keepPlaying = false;
 
+    private static void playMusic(Scanner scanner) {
         System.out.println("\n=== NOTHIN' BEATS THE CLASSICS ===\n");
 
-        if (musicProcess != null && musicProcess.isAlive()) {
-            System.out.println("Music is playing! Stopping. . .");
-            musicProcess.destroy();
-            musicProcess = null;
+        if (keepPlaying) {
+            System.out.println("Stopping music...");
+            keepPlaying = false;
+
+            if (musicProcess != null && musicProcess.isAlive()) {
+                musicProcess.destroy();
+            }
             return;
         }
 
@@ -585,24 +598,33 @@ public class App {
         File[] mp3Files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp3"));
 
         if (mp3Files == null || mp3Files.length == 0) {
-        System.out.println("No MP3 files found in " + musicDir);
-        System.out.println("Add some MP3s there first!");
-        return;
+            System.out.println("No MP3 files found in " + musicDir);
+            return;
         }
+        keepPlaying = true;
+        System.out.println("Starting playlist loop. (Enter option 11 again to stop)");
 
-        Random rand = new Random();
-        File randomSong = mp3Files[rand.nextInt(mp3Files.length)];
+        musicThread = new Thread(() -> {
+            Random rand = new Random();
 
-        System.out.println("Now playing: " + randomSong.getName());
-        System.out.println("(Enter option 11 again to stop)");
+            while (keepPlaying) {
+                File nextSong = mp3Files[rand.nextInt(mp3Files.length)];
+                printStatus("Now playing: " + nextSong.getName());
 
-        try {
-            ProcessBuilder pb = new ProcessBuilder("afplay", randomSong.getAbsolutePath());
-            musicProcess = pb.start();
-        } catch (Exception e) {
-            System.out.println("Error playing music: " + e.getMessage());
-        }
-    }
+                try {
+                    ProcessBuilder pb = new ProcessBuilder("afplay", nextSong.getAbsolutePath());
+                    musicProcess = pb.start();
+                    musicProcess.waitFor();
+                } catch (Exception e) {
+                    System.out.println("Playback error: " + e.getMessage());
+                }
+            }
+
+            printStatus("Music stopped.");
+        });
+
+        musicThread.start();
+}
 
     private static void tellJoke() {                                      // ******************** THE SACRED COW!!!!!!
             
