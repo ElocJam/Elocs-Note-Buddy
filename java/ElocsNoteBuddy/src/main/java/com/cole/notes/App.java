@@ -42,6 +42,7 @@ public class App {
                     createNewNote(scanner);
                     break;
                 case "0":
+                    stopMusic();
                     System.out.println();
                     System.out.println("░  ░░░░  ░░        ░░░      ░░░░      ░░░  ░░░░  ░░        ░░        ░░        ░░░░░░░░  ░░░░  ░░░      ░░░   ░░░  ░░░      ░░░░      ░░░        ░░       ░░");
                     System.out.println("▒   ▒▒   ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒▒▒  ▒▒    ▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒");
@@ -106,7 +107,7 @@ public class App {
         System.out.println("Need a break? Play a game!    ---> Enter 8");
         System.out.println("Need a laugh? Tell me a joke! ---> Enter 9");
         System.out.println("Stressed out? Take a dip!     ---> Enter 10");
-        System.out.println("Active lock in playlist.      ---> Enter 11");
+        System.out.println("Active lock in playlist       ---> Enter 11");
         System.out.println("Quit                          ---> Enter 0");
 
     }
@@ -569,12 +570,20 @@ public class App {
             }
     }
 
-    public static void printStatus(String msg) {                          // ****************** JUKEBOX CURSOR FIX
-        System.out.print("\u001B[s");      // save cursor position
-        System.out.print("\u001B[1A");    // move cursor UP 1 line
-        System.out.print("\u001B[2K");    // clear the entire line
-        System.out.print(msg + "\n");        // print status
-        System.out.print("\u001B[u");     // restore cursor position
+
+    private static void printStatus(String msg) {                               // *************** CURSOR FIX
+                                                            // Save cursor position
+        System.out.print("\u001B[s");                   // Save
+        System.out.print("\u001B[1A");                   // Move up one line
+        System.out.print("\u001B[2K");                  // Clear the line
+
+                                                            // Print status message
+        System.out.println(msg);
+
+                                                            // Restore cursor to saved position
+        System.out.print("\u001B[u");                   // Restore
+        System.out.print("Enter your choice: ");        // Reprint the input prompt so the cursor is always at the input line
+        System.out.flush();
     }
     
     private static Thread musicThread = null;                                   // **************** JUKEBOX METHOD
@@ -588,8 +597,13 @@ public class App {
             keepPlaying = false;
 
             if (musicProcess != null && musicProcess.isAlive()) {
-                musicProcess.destroy();
+                musicProcess.destroyForcibly();
             }
+
+            if (musicThread != null && musicThread.isAlive()) {
+                musicThread.interrupt();
+            }
+
             return;
         }
 
@@ -601,6 +615,7 @@ public class App {
             System.out.println("No MP3 files found in " + musicDir);
             return;
         }
+
         keepPlaying = true;
         System.out.println("Starting playlist loop. (Enter option 11 again to stop)");
 
@@ -614,17 +629,39 @@ public class App {
                 try {
                     ProcessBuilder pb = new ProcessBuilder("afplay", nextSong.getAbsolutePath());
                     musicProcess = pb.start();
+
                     musicProcess.waitFor();
+                } catch (InterruptedException e) {
+
+                    if (musicProcess != null && musicProcess.isAlive()) {
+                        musicProcess.destroyForcibly();
+                    }
+                    break;
                 } catch (Exception e) {
                     System.out.println("Playback error: " + e.getMessage());
                 }
             }
-
-            printStatus("Music stopped.");
         });
 
-        musicThread.start();
+    musicThread.setDaemon(true);
+    musicThread.start();
 }
+
+    private static void stopMusic() {                                   // *************** KILL THE MUSIC!
+        if (keepPlaying) {
+            keepPlaying = false;
+
+            if (musicProcess != null && musicProcess.isAlive()) {
+                musicProcess.destroyForcibly();
+            }
+
+            if (musicThread != null && musicThread.isAlive()) {
+                musicThread.interrupt();
+            }
+
+            printStatus("Music stopped.");
+        }
+    }
 
     private static void tellJoke() {                                      // ******************** THE SACRED COW!!!!!!
             
