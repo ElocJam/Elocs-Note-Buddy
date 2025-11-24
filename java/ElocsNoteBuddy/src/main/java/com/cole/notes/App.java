@@ -8,10 +8,12 @@ import java.util.Random;
 import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.io.File;
 
 
 public class App {
+
+    private static Process musicProcess = null;
 
     public static void main( String[] args ) {                 // **************** NOTE BUDDY'S BEATING HEART
 
@@ -75,6 +77,9 @@ public class App {
                 case "10":
                     aquarium(scanner);
                     break;
+                case "11":
+                    playMusic(scanner);
+                    break;
                 default:
                     System.out.println("\nInvalid choice. Please try again.");
             }
@@ -101,6 +106,7 @@ public class App {
         System.out.println("Need a break? Play a game!    ---> Enter 8");
         System.out.println("Need a laugh? Tell me a joke! ---> Enter 9");
         System.out.println("Stressed out? Take a dip!     ---> Enter 10");
+        System.out.println("Active lock in playlist.      ---> Enter 11");
         System.out.println("Quit                          ---> Enter 0");
 
     }
@@ -561,6 +567,41 @@ public class App {
                 System.out.println("\nError launching aquarium: " + e.getMessage());
                 System.out.println("Install with: brew install asciiquarium");
             }
+    }
+
+    private static void playMusic(Scanner scanner) {                            // *************** THE JUKEBOX METHOD
+
+        System.out.println("\n=== NOTHIN' BEATS THE CLASSICS ===\n");
+
+        if (musicProcess != null && musicProcess.isAlive()) {
+            System.out.println("Music is playing! Stopping. . .");
+            musicProcess.destroy();
+            musicProcess = null;
+            return;
+        }
+
+        String musicDir = System.getProperty("user.home") + "/Music/notebuddy-playlist/";
+        File folder = new File(musicDir);
+        File[] mp3Files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".mp3"));
+
+        if (mp3Files == null || mp3Files.length == 0) {
+        System.out.println("No MP3 files found in " + musicDir);
+        System.out.println("Add some MP3s there first!");
+        return;
+        }
+
+        Random rand = new Random();
+        File randomSong = mp3Files[rand.nextInt(mp3Files.length)];
+
+        System.out.println("Now playing: " + randomSong.getName());
+        System.out.println("(Enter option 11 again to stop)");
+
+        try {
+            ProcessBuilder pb = new ProcessBuilder("afplay", randomSong.getAbsolutePath());
+            musicProcess = pb.start();
+        } catch (Exception e) {
+            System.out.println("Error playing music: " + e.getMessage());
+        }
     }
 
     private static void tellJoke() {                                      // ******************** THE SACRED COW!!!!!!
