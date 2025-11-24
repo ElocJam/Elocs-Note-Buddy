@@ -1,4 +1,5 @@
 package com.cole.notes;
+
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -51,8 +52,14 @@ public class App {
                     break;
                 case "7":
                     listByCreated(scanner);
+                case "8":
+                    playGame(scanner);
+                    break;
                 case "9":
                     tellJoke();
+                    break;
+                case "10":
+                    aquarium(scanner);
                     break;
                 default:
                     System.out.println("\nInvalid choice. Please try again.");
@@ -66,12 +73,14 @@ public class App {
         System.out.println("What would you like to do?");
         System.out.println("Create new note               ---> Enter 1");
         System.out.println("List all notes                ---> Enter 2");
-        System.out.println("Edit existsing note           ---> Enter 3");
+        System.out.println("Edit existing note            ---> Enter 3");
         System.out.println("Delete existing note          ---> Enter 4");
         System.out.println("Search notes by keyword       ---> Enter 5");
         System.out.println("Filter notes by tag           ---> Enter 6");
         System.out.println("List notes by creation date   ---> Enter 7");
-        System.out.println("Tell me a joke                ---> Enter 9");
+        System.out.println("Need a break? Play a game!    ---> Enter 8");
+        System.out.println("Need a laugh? Tell me a joke! ---> Enter 9");
+        System.out.println("Stressed out? Take a dip!     ---> Enter 10");
         System.out.println("Quit                          ---> Enter 0");
 
     }
@@ -489,6 +498,49 @@ public class App {
         } catch (Exception e) {
             System.out.println("Error listing notes: " + e.getMessage());
         }
+    }
+
+    private static void playGame(Scanner scanner) {                                 // **************** PLAY A GAME METHOD
+
+        System.out.println("\n=== TAKE A BREAK AND PLAY A GAME ===\n");
+        System.out.println("Launching game menu. . .");
+        System.out.println("(Use arrow keys to select, Enter to play, 'q' to quit back to notes)");
+        System.out.print("\nPress Enter to continue. . .");
+
+            try {
+                scanner.nextLine();
+
+                ProcessBuilder pb = new ProcessBuilder("nbsdgames");
+                pb.inheritIO();
+                Process process = pb.start();
+                process.waitFor();
+
+                System.out.println("\nBack to notes!");
+            } catch (Exception e) {
+                System.out.println("\nError launching games: " + e.getMessage());
+                System.out.println("Make sure nbsdgames is installed: brew install nbsdgames");
+            }
+    }
+
+    private static void aquarium(Scanner scanner) {                                 // *************** AQUARIUM METHOD
+        System.out.println("\n=== TIME TO SWIM WITH THE FISHES ===\n");
+        System.out.println("Just keep swimming...just keep swimming...");
+        System.out.println("(Press 'q' to exit back to notes)");
+        System.out.print("\nPress Enter to start. . .");
+
+            try {
+                scanner.nextLine();
+
+                ProcessBuilder pb = new ProcessBuilder("asciiquarium");
+                pb.inheritIO();
+                Process process = pb.start();
+                process.waitFor();
+
+                System.out.println("\nDid you find Nemo? Back to notes!");
+            } catch (Exception e) {
+                System.out.println("\nError launching aquarium: " + e.getMessage());
+                System.out.println("Install with: brew install asciiquarium");
+            }
     }
 
     private static void tellJoke() {                                      // ******************** THE SACRED COW!!!!!!
